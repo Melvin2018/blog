@@ -1,70 +1,46 @@
 import Post from '../models/post.js'
-
-
-export const list = async(req, res) => {
+import {
+    MSG_ERROR,
+    data_send
+} from '../services/message.js'
+export const getPost = async(req, res) => {
     try {
         const list = await Post.find()
-        return res.send({
-            status: "success",
-            posts: list
-        })
+        return res.send(data_send(list))
     } catch {
-        return res.status(500).send({
-            status: "error",
-            message: "something went wrong"
-        })
+        return res.status(500).send(MSG_ERROR)
     }
 }
 
-export const newPost = async(req, res) => {
-    const post = new Post(req.body.title, req.body.body, req.body.userId)
+export const savePost = async(req, res) => {
+    const post = new Post(req.body.title, req.body.body, req.userId)
+    console.log(post);
     try {
         const savedPost = await post.save()
-        return res.send({
-            status: "succes",
-            createdPost: savedPost
-        })
+        return res.send(data_send(savedPost, 'savedPost'))
     } catch (err) {
-        return res.status(500).send({
-            status: "error",
-            message: "something went wrong"
-        })
+        return res.status(500).send(MSG_ERROR)
     }
 }
 export const updatePost = async(req, res) => {
     const post = new Post(req.body.title, req.body.body, req.userId)
     try {
         const updatePost = await post.update(req.params.id)
-        return res.send({
-            status: "succes",
-            updatedPost: updatePost
-        })
+        return res.send(data_send(updatePost, 'updatedPost'))
     } catch (err) {
-        return res.status(500).send({
-            status: "error",
-            message: "something went wrong"
-        })
+        return res.status(500).send(MSG_ERROR)
     }
 }
-export const detail = async(req, res) => {
+export const findById = async(req, res) => {
     try {
-        const {
-            found,
-            post
-        } = await Post.findById(req.params.id)
+        const { found, post } = await Post.findById(req.params.id)
         if (!found) return res.status(404).send({
             status: "error",
-            message: `Post not fond with id ${req.params.id}`
+            message: `no carga post con id=${req.params.id}`
         });
-        return res.send({
-            status: "success",
-            post: post
-        })
+        return res.send(data_send(post, 'post'))
     } catch (err) {
-        return res.status(500).send({
-            status: "error",
-            message: " went wrong"
-        })
+        return res.status(500).send(MSG_ERROR)
     }
 
 }
@@ -77,26 +53,17 @@ export const deletePost = async(req, res) => {
         } = await Post.deleteById(req.params.id)
         if (!found) return res.status(404).send({
             status: "error",
-            message: `Post not fond with id ${req.params.id}`
+            message: `no carga post con id=${req.params.id}`
         });
-        return res.send({
-            status: "success",
-            post: post
-        })
+        return res.send(data_send(post, "DeletedPost"))
     } catch (err) {
-        return res.status(500).send({
-            status: "error",
-            message: "something went wrong"
-        })
+        return res.status(500).send(MSG_ERROR)
     }
 }
-
-
-
 export default {
-    list,
-    newPost,
+    getPost,
+    savePost,
     updatePost,
-    detail,
+    findById,
     deletePost
 }

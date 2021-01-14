@@ -9,9 +9,9 @@ export const newToken = (key) => {
     const toHmac = key + timestamp;
     const sha = hash.update(toHmac).digest('hex')
     const toEncode = sha + delimiter + key + delimiter + timestamp
-
     return Buffer.from(toEncode).toString('base64');
 }
+
 export const newAuthToken = userId => {
     const auth = jwt.sign({
         role: "auth",
@@ -33,7 +33,6 @@ export const newAuthToken = userId => {
 export const verify = (token) => {
     const decoded = Buffer.from(token, 'base64').toString()
     const [hash, key, timestamp] = decoded.split(delimiter);
-
     if ((Date.now() - timestamp) / 1000 / 60 > 120) {
         return {
             valid: false,

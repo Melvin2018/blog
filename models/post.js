@@ -40,7 +40,11 @@ export default class Post {
     static findById = async id => {
         try {
             const res = await queryer('SELECT * FROM public.post WHERE id = $1', id)
-            return res.rowCount == 0 ? [] : this.hydrate(res.rows).pop()
+            const found = res.rowCount > 0
+            return {
+                found,
+                post: this.hydrate(res.rows).pop()
+            }
         } catch (err) {
             return err
         }
@@ -48,7 +52,11 @@ export default class Post {
     static deleteById = async id => {
         try {
             const res = await queryer('DELETE FROM public.post WHERE id = $1 RETURNING *', id)
-            return res.rowCount == 0 ? [] : this.hydrate(res.rows).pop()
+            const found = res.rowCount > 0
+            return {
+                found,
+                post: this.hydrate(res.rows).pop()
+            }
         } catch (err) {
             return err
         }

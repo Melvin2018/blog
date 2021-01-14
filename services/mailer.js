@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail'
 import {
-    newToken
+    newAuthToken
 } from './token.js'
 
 const sendHTMLEmail = (toEmail, subject, html) => {
@@ -13,7 +13,7 @@ const sendHTMLEmail = (toEmail, subject, html) => {
         html: html
     }
     const gmail = false;
-    let response;
+    //Hice los dos metodos de envio, por gmail y por sendGrid, depende el valor de la variable gmail asi sera el metodo
     if (gmail) {
         const optionsGmail = {
             host: 'smtp.gmail.com',
@@ -25,26 +25,22 @@ const sendHTMLEmail = (toEmail, subject, html) => {
             }
         }
         const transporter = nodemailer.createTransport(optionsGmail)
-        response = transporter.sendMail(options)
+        transporter.sendMail(options)
     } else {
-        response = sgMail.send(options)
+        sgMail.send(options);
     }
-    response.then(res => {
-            console.log("Email enviado");
-        })
-        .catch(err => {
-            console.log(err.response.body)
-        })
 }
 export const sendVerificationEmail = (user) => {
-        const token = newToken(user.id);
-        const link = `http://localhost:8080/auth/verify/?token=${token}`
-        sendHTMLEmail(user.email, "Email Verification", `
+    const {
+        auth
+    } = newAuthToken(user.id);
+    const link = `http://localhost:8080/auth/verify/${auth}`
+    sendHTMLEmail(user.email, "Email Verification", `
             Muchas gracias por registrarte</br>
             verifica tu email <a href=${link}>aqui</a>
         `);
-    }
-    // sendVerificationEmail({
-    //     id: 3,
-    //     email: 'mapacherecinos@gmail.com'
-    // })
+}
+export const sendConfirmationEmail = (user) => {
+    console.log(user);
+    sendHTMLEmail(user.email, "Email confirmation", `<h1>Bienvenido a Melvin Blog</h1>`);
+}
